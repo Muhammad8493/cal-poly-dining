@@ -1,60 +1,70 @@
 // src/components/PollCard.jsx
 import React from 'react';
 
-export default function PollCard({ poll, onOptionChange, onVote }) {
-  // Calculate percentage for each option
-  function getPercentage(votes) {
-    return poll.totalVotes === 0 ? 0 : Math.round((votes / poll.totalVotes) * 100);
+// Helper to compute total votes from poll.options.
+function getTotalVotes(options) {
+  return options.reduce((sum, opt) => sum + Number(opt.votes), 0);
+}
+
+export default function PollCard({ poll, onOptionChange, onVote, currentUserEmail }) {
+  const totalVotes = getTotalVotes(poll.options);
+  const userVoted = poll.userVoted;
+
+  // Calculate percentage for a given vote count.
+  function getPercentage(voteCount) {
+    return totalVotes === 0 ? 0 : Math.round((voteCount / totalVotes) * 100);
   }
 
   return (
     <div className="bg-white shadow-md rounded p-4">
       <div className="mb-2 text-lg font-bold text-gray-800">{poll.question}</div>
 
-      {/* Sub-info row: time left, live status, total votes */}
+      {/* Sub-info row: time left, live status, computed total votes */}
       <div className="flex items-center justify-between text-sm mb-4">
         <span className="text-gray-600">{poll.timeLeft}</span>
         <div className="flex items-center gap-2">
           {poll.isLive && <span className="text-green-500">● Live</span>}
-          <span className="text-gray-600">{poll.totalVotes} votes</span>
+          <span className="text-gray-600">{totalVotes} votes</span>
         </div>
       </div>
 
-      {!poll.userVoted ? (
+      {/* If user hasn't voted yet, show radio buttons. Otherwise, show results */}
+      {!userVoted ? (
         <div className="flex flex-col gap-2">
-          {poll.options.map((option) => (
+          {poll.options.map((option, idx) => (
             <label
-              key={option.id}
+              key={idx}
               className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 rounded px-3 py-2 cursor-pointer"
             >
               <input
                 type="radio"
                 name={`poll-${poll.id}`}
-                value={option.id}
-                checked={poll.selectedOption === option.id}
-                onChange={() => onOptionChange(poll.id, option.id)}
+                checked={poll.selectedOption === idx}
+                onChange={() => onOptionChange(poll.id, idx)}
                 className="form-radio text-gray-600"
               />
               <span className="text-gray-800">{option.text}</span>
             </label>
           ))}
           <button
-            onClick={() => onVote(poll.id)}
-            className="mt-auto item-end mt-2 bg-gray-800 text-white font-bold px-4 py-2 rounded hover:bg-gray-700"
+            onClick={onVote}
+            className="mt-2 bg-gray-800 text-white font-bold px-4 py-2 rounded hover:bg-gray-700"
           >
             Vote
           </button>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {poll.options.map((option) => {
-            const pct = getPercentage(option.votes);
-            const isSelected = poll.selectedOption === option.id;
+          {poll.options.map((option, idx) => {
+            const voteCount = Number(option.votes);
+            const pct = getPercentage(voteCount);
+            // Check if this option index is the one the user selected.
+            const isUserChoice = poll.users && poll.users[currentUserEmail] === idx;
             return (
-              <div key={option.id}>
+              <div key={idx}>
                 <div
                   className={`flex items-center justify-between px-3 py-2 rounded ${
-                    isSelected ? 'bg-gray-300' : 'bg-gray-200'
+                    isUserChoice ? 'bg-green-200' : 'bg-gray-200'
                   }`}
                 >
                   <span className="text-gray-800">{option.text}</span>

@@ -1,6 +1,8 @@
 // src/App.jsx
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from './firebase';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -12,51 +14,36 @@ import DiningSpots from './pages/DiningSpots';
 import Contact from './pages/Contact';
 import Polls from './pages/Polls';
 
-
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
 
+  // Removed hardcoded dishData.
+  // Dish.jsx will fetch its own data from Firestore.
 
-  const [dishData, setDishData] = useState({
-    Brunch: {
-      Burger: [
-        { id: 1, title: 'Good dish!', body: 'Delicious!', rating: 4, user: 'John Doe' },
-        { id: 2, title: 'Pretty good!', body: 'Tasted great!', rating: 4.5, user: 'Jane Smith' },
-        { id: 3, title: 'Decent', body: 'It was okay.', rating: 3.5, user: 'Alex Johnson' },
-        { id: 4, title: 'Loved it!', body: 'One of the best meals!', rating: 4.0, user: 'Chris Lee' },
-      ],
-      Salad: [
-        { id: 1, title: 'Light and fresh', body: 'Loved the dressing!', rating: 4.0, user: 'Sam Green' },
-      ],
-    },
-    // You can add more restaurants and dishes as needed
-  });
-
-  // Helper function to add a new review for a given restaurant + dish
+  // Helper function to add a new review to a dish's Reviews subcollection.
   function addReview(restaurantName, dishName, newReview) {
-    setDishData(prev => {
-      // Make a shallow copy
-      const newState = { ...prev };
-      // Ensure we have an object for that restaurant
-      if (!newState[restaurantName]) {
-        newState[restaurantName] = {};
-      }
-      // Ensure we have an array for that dish
-      if (!newState[restaurantName][dishName]) {
-        newState[restaurantName][dishName] = [];
-      }
-      // Append the new review
-      newState[restaurantName][dishName] = [
-        ...newState[restaurantName][dishName],
-        newReview
-      ];
-      return newState;
-    });
+    return addDoc(
+        collection(db, 'DiningSpots', restaurantName, 'MenuItems', dishName, 'Reviews'),
+        {
+          ...newReview,
+          createdAt: serverTimestamp(),
+          flagged: false,
+        }
+      )
+        .then(() => {
+          // Optionally notify success or update local state.
+        })
+        .catch((error) => {
+          console.error('Error adding review:', error);
+        });
   }
 
   function handleSignOut() {
     setIsLoggedIn(false);
+    setUserName('');
+    setUserEmail('');
   }
 
   return (
@@ -67,19 +54,23 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/dining-spots" element={<DiningSpots />} />
-            <Route path="/polls" element={<Polls />} />
+            <Route path="/polls" element={<Polls isLoggedIn={isLoggedIn} currentUserEmail={userEmail} />} />
             <Route path="/contact" element={<Contact />} />
             <Route
               path="/sign-in"
-              element={<SignIn setIsLoggedIn={setIsLoggedIn} setUserName={setUserName} />}
+              element={
+                <SignIn
+                  setIsLoggedIn={setIsLoggedIn}
+                  setUserName={setUserName}
+                  setUserEmail={setUserEmail}
+                />
+              }
             />
             <Route path="/restaurant/:name" element={<Restaurant />} />
-            {/* Pass dishData, addReview, isLoggedIn, userName to Dish */}
             <Route
               path="/restaurant/:name/dish/:dishName"
               element={
                 <Dish
-                  dishData={dishData}
                   addReview={addReview}
                   isLoggedIn={isLoggedIn}
                   userName={userName}

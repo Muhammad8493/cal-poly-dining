@@ -1,5 +1,7 @@
 // src/pages/Contact.jsx
 import React, { useState } from 'react';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -11,35 +13,35 @@ export default function Contact() {
     message: '',
   });
 
-  // Handle input changes, enforcing max length on subject (50) and message (500)
+  // Handle input changes with character limits for subject and message
   function handleChange(e) {
     const { name, value } = e.target;
-
-    if (name === 'subject' && value.length > 50) {
-      return; // stop if beyond 50 chars
-    }
-    if (name === 'message' && value.length > 500) {
-      return; // stop if beyond 500 chars
-    }
-
+    if (name === 'subject' && value.length > 50) return;
+    if (name === 'message' && value.length > 500) return;
     setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
-  // For now, we just console.log the data. In the future, you can send an email.
-  function handleSubmit(e) {
+  // Send form data to the Firestore "Reports" collection
+  async function handleSubmit(e) {
     e.preventDefault();
-    console.log('User submitted contact form:', formData);
-    alert('Message sent! (In the future, this could be emailed.)');
-
-    // Clear the form if desired
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      phoneNumber: '',
-      subject: '',
-      message: '',
-    });
+    try {
+      await addDoc(collection(db, 'Reports'), {
+        ...formData,
+        createdAt: serverTimestamp(),
+      });
+      alert('Message sent! Data saved to Reports.');
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phoneNumber: '',
+        subject: '',
+        message: '',
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
+    }
   }
 
   return (
@@ -50,7 +52,7 @@ export default function Contact() {
         {/* First and Last Name */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block mb-1 text-black  font-semibold" htmlFor="firstName">
+            <label className="block mb-1 text-black font-semibold" htmlFor="firstName">
               First Name
             </label>
             <input
@@ -65,7 +67,7 @@ export default function Contact() {
             />
           </div>
           <div>
-            <label className="block mb-1 text-black  font-semibold" htmlFor="lastName">
+            <label className="block mb-1 text-black font-semibold" htmlFor="lastName">
               Last Name
             </label>
             <input
@@ -84,7 +86,7 @@ export default function Contact() {
         {/* Email and Phone */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div>
-            <label className="block mb-1 text-black  font-semibold" htmlFor="email">
+            <label className="block mb-1 text-black font-semibold" htmlFor="email">
               Your email
             </label>
             <input
@@ -116,7 +118,7 @@ export default function Contact() {
 
         {/* Subject */}
         <div className="mt-4">
-          <label className="block mb-1 text-black  font-semibold" htmlFor="subject">
+          <label className="block mb-1 text-black font-semibold" htmlFor="subject">
             Subject
           </label>
           <input
@@ -152,7 +154,6 @@ export default function Contact() {
             {formData.message.length}/500
           </div>
         </div>
-
 
         {/* Submit Button */}
         <button

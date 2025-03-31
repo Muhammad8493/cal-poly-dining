@@ -1,115 +1,126 @@
 // src/pages/Polls.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PollCard from '../components/PollCard';
+import { db } from '../firebase';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 
-export default function Polls() {
-  // Example polls data
-  const [polls, setPolls] = useState([
-    {
-      id: 1,
-      question: 'Which dish is your favorite?',
-      options: [
-        { id: 1, text: 'Burger', votes: 10 },
-        { id: 2, text: 'Pizza', votes: 15 },
-        { id: 3, text: 'Salad', votes: 5 },
-        { id: 4, text: 'Pasta', votes: 8 },
-      ],
-      totalVotes: 38, // sum of votes
-      isLive: true,
-      timeLeft: '3 days left',
-      userVoted: false,
-      selectedOption: null,
-    },
-    {
-      id: 2,
-      question: 'Which dish do you want to return?',
-      options: [
-        { id: 1, text: 'Pumpkin Spice Latte', votes: 20 },
-        { id: 2, text: 'Sourdough Bread Bowl', votes: 12 },
-        { id: 3, text: 'Tofu Stir-Fry', votes: 7 },
-        { id: 4, text: 'Chicken Bowl', votes: 7 },
-      ],
-      totalVotes: 49,
-      isLive: true,
-      timeLeft: '5 days left',
-      userVoted: false,
-      selectedOption: null,
-    },
-    {
-        id: 3,
-        question: 'Which new dish do you like?',
-        options: [
-          { id: 1, text: 'Burger', votes: 10 },
-          { id: 2, text: 'Pizza', votes: 15 },
-          { id: 3, text: 'Salad', votes: 5 },
-          { id: 4, text: 'Pasta', votes: 8 },
-          
-        ],
-        totalVotes: 18, // sum of votes
-        isLive: true,
-        timeLeft: '3 days left',
-        userVoted: false,
-        selectedOption: null,
-      },
-      {
-        id: 4,
-        question: 'How do you like the current food options?',
-        options: [
-          { id: 1, text: 'Terrible', votes: 20 },
-          { id: 2, text: 'Bad', votes: 12 },
-          { id: 3, text: 'Okay', votes: 7 },
-          { id: 4, text: 'Good', votes: 7 },
-          { id: 4, text: 'Great', votes: 7 },
+export default function Polls({ isLoggedIn, currentUserEmail }) {
+  const [polls, setPolls] = useState([]);
+  const navigate = useNavigate();
 
-        ],
-        totalVotes: 53,
-        isLive: true,
-        timeLeft: '5 days left',
-        userVoted: false,
-        selectedOption: null,
-      },
-  ]);
+  // Fetch polls from Firestore on mount
+  useEffect(() => {
+    async function fetchPolls() {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'Polls'));
+        const pollsData = querySnapshot.docs.map(docSnap => {
+          const data = docSnap.data();
+          // Determine if current user has voted by checking if their email is in the users map.
+          const userVote = currentUserEmail && data.users ? data.users[currentUserEmail] : null;
+          return {
+            id: docSnap.id,
+            ...data,
+            userVoted: userVote !== null && userVote !== undefined,
+            selectedOption: userVote ?? null, // stored as number if voted
+          };
+        });
+        setPolls(pollsData);
+      } catch (error) {
+        console.error('Error fetching polls:', error);
+      }
+    }
+    fetchPolls();
+  }, [currentUserEmail]);
 
-  // Handle when user selects an option before voting
-  function handleOptionChange(pollId, optionId) {
-    setPolls((prevPolls) =>
-      prevPolls.map((poll) =>
-        poll.id !== pollId ? poll : { ...poll, selectedOption: optionId }
+  // Called when the user selects an option (radio button)
+  // optionValue is now the index (number) of the option selected.
+  function handleOptionChange(pollId, optionValue) {
+    setPolls(prevPolls =>
+      prevPolls.map(poll =>
+        poll.id === pollId && !poll.userVoted
+          ? { ...poll, selectedOption: optionValue }
+          : poll
       )
     );
   }
 
-  // Handle when user clicks "Vote"
-  function handleVote(pollId) {
-    setPolls((prevPolls) =>
-      prevPolls.map((poll) => {
-        if (poll.id !== pollId) return poll;
-        if (poll.userVoted || poll.selectedOption == null) return poll;
-        const updatedOptions = poll.options.map((option) =>
-          option.id === poll.selectedOption
-            ? { ...option, votes: option.votes + 1 }
-            : option
-        );
-        return {
-          ...poll,
-          options: updatedOptions,
-          totalVotes: poll.totalVotes + 1,
-          userVoted: true,
-        };
-      })
-    );
+  // Called when the user clicks "Vote"
+  async function handleVote(pollId) {
+    const poll = polls.find(p => p.id === pollId);
+    if (!poll) return;
+
+    // Must be logged in.
+    if (!isLoggedIn) {
+      alert('You must be logged in to vote.');
+      navigate('/sign-in');
+      return;
+    }
+
+    // If the user has already voted, do not allow voting again.
+    if (poll.userVoted) {
+      alert('You have already voted on this poll.');
+      return;
+    }
+
+    // Check if poll is still active (using isLive or another criteria)
+    if (!poll.isLive) {
+      alert('This poll is no longer active.');
+      return;
+    }
+
+    // Must select an option
+    if (poll.selectedOption === null || poll.selectedOption === undefined) {
+      alert('Please select an option before voting.');
+      return;
+    }
+
+    try {
+      // Update the options array by incrementing the votes for the chosen option.
+      const updatedOptions = poll.options.map((option, idx) => {
+        if (idx === poll.selectedOption) {
+          const newVoteCount = Number(option.votes) + 1;
+          return { ...option, votes: newVoteCount.toString() };
+        }
+        return option;
+      });
+
+      // Update the users map: store the selected option index.
+      const updatedUsers = { ...(poll.users || {}) };
+      updatedUsers[currentUserEmail] = poll.selectedOption;
+
+      // Reference to the poll document in Firestore.
+      const pollRef = doc(db, 'Polls', pollId);
+      await updateDoc(pollRef, {
+        options: updatedOptions,
+        users: updatedUsers,
+      });
+
+      // Update local state.
+      setPolls(prevPolls =>
+        prevPolls.map(p =>
+          p.id === pollId
+            ? { ...p, options: updatedOptions, users: updatedUsers, userVoted: true }
+            : p
+        )
+      );
+    } catch (error) {
+      console.error('Error voting on poll:', error);
+      alert('Error voting on poll. Please try again.');
+    }
   }
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Dining Polls</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
-        {polls.map((poll) => (
+        {polls.map(poll => (
           <PollCard
             key={poll.id}
             poll={poll}
-            onOptionChange={handleOptionChange}
-            onVote={handleVote}
+            onOptionChange={(id, optionValue) => handleOptionChange(id, optionValue)}
+            onVote={() => handleVote(poll.id)}
+            currentUserEmail={currentUserEmail}
           />
         ))}
       </div>

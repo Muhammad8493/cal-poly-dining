@@ -21,18 +21,18 @@ export default function Header({ isLoggedIn, onSignOut }) {
 
       {/* Navigation links */}
       <nav className="flex gap-4">
-        <Link
+        {/* <Link
           to="/dining-spots"
           className="text-[#bada55] hover:text-[#ffffff] font-bold transition-colors"
         >
           Dining
-        </Link>
-        <Link
+        </Link> */}
+        {/* <Link
           to="#"
           className="text-[#bada55] hover:text-[#ffffff] font-bold transition-colors"
         >
           Reviews
-        </Link>
+        </Link> */}
         <Link
           to="/polls"
           className="text-[#bada55] hover:text-[#ffffff] font-bold transition-colors"
