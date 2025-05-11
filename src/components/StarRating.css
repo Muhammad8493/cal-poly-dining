@@ -1,0 +1,27 @@
+.rating {
+    display: inline-block;
+    position: relative;
+    font-size: 1.125rem;  
+    line-height: 1;
+    width: auto;
+  }
+  
+  .rating-upper,
+  .rating-lower {
+    display: flex;
+  }
+  
+  .rating-upper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    color: #fec800;        
+    -webkit-text-stroke: 0.5px black;
+  }
+  
+  .rating-lower {
+    color: #d1d5db;  
+    -webkit-text-stroke: 0.5px black;
+  }
+  

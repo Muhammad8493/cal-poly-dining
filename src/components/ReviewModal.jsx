@@ -8,6 +8,7 @@ export default function ReviewModal({
   restaurantName,
   dishName,
   userName,
+  userEmail,
   renderStars
 }) {
   const [title, setTitle] = useState('');
@@ -21,16 +22,20 @@ export default function ReviewModal({
     setIsSubmitting(true);
 
     const newReview = {
-      id: Date.now(), // temporary local id
       title,
       comment: body,
       rating,
       name: userName,
+      email: userEmail,
+      likedBy:[],
+      dislikedBy:[]
     };
 
-    // Return promise from addReview so we can chain .then()
+    // addReview is expected to return a promise that resolves with the DocumentReference.
     addReview(restaurantName, dishName, newReview)
-      .then(() => {
+      .then((docRef) => {
+        // Set the review object's id from Firestore.
+        newReview.id = docRef.id;
         if (onReviewAdded) {
           onReviewAdded(newReview);
         }
@@ -53,7 +58,7 @@ export default function ReviewModal({
     }
   };
 
-  // Clicking on overlay should close the modal.
+  // Clicking on the overlay closes the modal.
   const handleOverlayClick = () => {
     onClose();
   };
@@ -79,7 +84,7 @@ export default function ReviewModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-2.5"
       onClick={handleOverlayClick}
     >
       <div
@@ -111,9 +116,7 @@ export default function ReviewModal({
               placeholder="What did you think?"
               required
             />
-            <div className="text-sm text-gray-500">
-              {body.length}/250 characters
-            </div>
+            <div className="text-sm text-gray-500">{body.length}/250 characters</div>
           </div>
           {/* Star Rating: Clickable Stars */}
           <div className="mb-4">

@@ -11,9 +11,13 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.9",
+    "feather-icons": "^4.29.2",
     "firebase": "^11.4.0",
+    "lucide-react": "^0.503.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-feather": "^2.0.10",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^7.2.0"
   },
   "devDependencies": {

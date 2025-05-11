@@ -54,45 +54,57 @@ export default function Restaurant() {
   }
 
   return (
-    <div className="w-[90%] max-w-[1200px] mx-auto my-5">
-      <div className="flex flex-col">
-        <button
-          onClick={handleBackClick}
-          className="bg-[#bada55] text-[#333333] px-3 py-1 rounded font-bold hover:bg-[#ffffff] hover:text-[#333333] transition-colors mb-2 self-start"
-        >
-          &larr; Back
-        </button>
-        <h2 className="text-2xl font-bold border-b-2 border-[#bada55] inline-block pb-1 mb-6">
-          {restaurant ? restaurant.name : 'Loading...'}
-        </h2>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+<div className="w-[90%] max-w-[1200px] mx-auto my-3 max-[600px]:my-2">
+  {/* Back button and Restaurant image in one row */}
+  <div className="flex items-center mb-1 max-[6000px]:mb-0">
+    <button
+      onClick={handleBackClick}
+      className="bg-[#bada55] text-[#333333] px-3 py-1.5 rounded font-bold hover:bg-[#ffffff] hover:text-[#333333] transition-colors text-sm max-[600px]:text-xs"
+    >
+      &larr; Back
+    </button>
+    {restaurant && restaurant.image && (
+      <img
+        src={restaurant.image}
+        alt={restaurant.name}
+        className="w-12 h-12 rounded ml-4 object-cover max-[600px]:w-11 max-[600px]:h-11"
+      />
+    )}
+  </div>
+  {/* Restaurant name */}
+  <div className="mb-6 max-[600px]:mb-3">
+    <h2 className="text-2xl max-[490px]:text-xl font-bold border-b-2 border-[#bada55] pb-1">
+      {restaurant ? restaurant.name : 'Loading...'}
+    </h2>
+  </div>
+        <div
+        className="grid grid-cols-1 gap-5 min-[600px]:grid-cols-2 min-[800px]:grid-cols-3
+                    min-[1100px]:grid-cols-4 auto-rows-fr min-[600px]:justify-items-center">
         {menuItems.map(dish => (
           <Link key={dish.id} to={`/restaurant/${name}/dish/${dish.id}`}>
-            <div className="bg-[#f9f9f9] border border-[#eeeeee] p-4 rounded hover:shadow-md transition-shadow text-center cursor-pointer">
+            <div
+              className="bg-[#f9f9f9] border border-[#eeeeee] rounded hover:shadow-md transition-shadow cursor-pointer
+                          flex flex-row items-center gap-4 w-full p-4 text-left min-[600px]:flex-col  min-[600px]:items-start               
+                          min-[600px]:w-auto    min-[600px]:max-w-[264px] min-[600px]:mx-auto h-full">
               <img
                 src={dish.image || 'https://place-hold.it/300'}
                 alt={dish.name}
-                className="w-52 mb-2"
-              />
-              <div className="font-bold text-[#333333] text-left">{dish.name}</div>
-              {/* Display average rating and number of reviews */}
-              <div className="text-sm text-gray-600 text-left">
-                <>
-                  Rating: {dish.averageRating.toFixed(1)}
-                </>
+                className="w-20 h-20 aspect-square object-cover rounded min-[600px]:w-58  min-[600px]:h-58  min-[600px]:mx-auto" />
+
+              <div className="flex flex-col text-left text-sm w-full"> 
+                <div className="font-bold text-[#333333]">{dish.name}</div>
+
+                <div className="text-gray-600">Rating:&nbsp;{dish.averageRating.toFixed(1)}</div>
+                <div className="text-gray-600">
+                  {dish.reviewCount ? (
+                    <>
+                      {dish.reviewCount} Review{dish.reviewCount > 1 ? 's' : ''}
+                    </>
+                  ) : (
+                    'No reviews yet'
+                  )}
+                </div>
               </div>
-              <div className="text-sm text-gray-600 text-left">
-                {dish.reviewCount ? (
-                  <>
-                    {dish.reviewCount} Review
-                    {dish.reviewCount > 1 ? 's' : ''}
-                  </>
-                ) : (
-                  'No reviews yet'
-                )}
-              </div>
-              <p className="text-sm text-gray-600 text-left">{dish.description}</p>
             </div>
           </Link>
         ))}

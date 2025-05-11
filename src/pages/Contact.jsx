@@ -21,15 +21,15 @@ export default function Contact() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
-  // Send form data to the Firestore "Reports" collection
+  // Send form data to the Firestore "Suggestions" collection
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      await addDoc(collection(db, 'Reports'), {
+      await addDoc(collection(db, 'Suggestions'), {
         ...formData,
         createdAt: serverTimestamp(),
       });
-      alert('Message sent! Data saved to Reports.');
+      alert('Thank you for sharing.');
       setFormData({
         firstName: '',
         lastName: '',
@@ -45,14 +45,14 @@ export default function Contact() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 text-white flex items-center justify-center p-4">
-      <form onSubmit={handleSubmit} className="max-w-2xl w-full bg-white p-6 rounded">
-        <h2 className="text-2xl font-bold mb-4">Contact Us</h2>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <form onSubmit={handleSubmit} className="max-w-2xl w-full bg-white p-6 rounded shadow">
+        <h2 className="text-xl font-bold mb-5">Contact Us</h2>
 
         {/* First and Last Name */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block mb-1 text-black font-semibold" htmlFor="firstName">
+            <label htmlFor="firstName" className="block mb-1 font-semibold">
               First Name
             </label>
             <input
@@ -62,12 +62,12 @@ export default function Contact() {
               required
               value={formData.firstName}
               onChange={handleChange}
-              className="w-full p-2 rounded text-black outline-1"
+              className="w-full p-2 border rounded"
               placeholder="First Name"
             />
           </div>
           <div>
-            <label className="block mb-1 text-black font-semibold" htmlFor="lastName">
+            <label htmlFor="lastName" className="block mb-1 font-semibold">
               Last Name
             </label>
             <input
@@ -77,17 +77,17 @@ export default function Contact() {
               required
               value={formData.lastName}
               onChange={handleChange}
-              className="w-full p-2 rounded text-black outline-1"
+              className="w-full p-2 border rounded"
               placeholder="Last Name"
             />
           </div>
         </div>
 
         {/* Email and Phone */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <div>
-            <label className="block mb-1 text-black font-semibold" htmlFor="email">
-              Your email
+            <label htmlFor="email" className="block mb-1 font-semibold">
+              Your Email
             </label>
             <input
               id="email"
@@ -96,12 +96,12 @@ export default function Contact() {
               required
               value={formData.email}
               onChange={handleChange}
-              className="w-full p-2 rounded text-black outline-1"
+              className="w-full p-2 border rounded"
               placeholder="name@company.com"
             />
           </div>
           <div>
-            <label className="block mb-1 text-black font-semibold" htmlFor="phoneNumber">
+            <label htmlFor="phoneNumber" className="block mb-1 font-semibold">
               Phone Number
             </label>
             <input
@@ -110,7 +110,7 @@ export default function Contact() {
               type="tel"
               value={formData.phoneNumber}
               onChange={handleChange}
-              className="w-full p-2 rounded text-black outline-1"
+              className="w-full p-2 border rounded"
               placeholder="+1 (234) 567-8901"
             />
           </div>
@@ -118,7 +118,7 @@ export default function Contact() {
 
         {/* Subject */}
         <div className="mt-4">
-          <label className="block mb-1 text-black font-semibold" htmlFor="subject">
+          <label htmlFor="subject" className="block mb-1 font-semibold">
             Subject
           </label>
           <input
@@ -127,18 +127,18 @@ export default function Contact() {
             type="text"
             value={formData.subject}
             onChange={handleChange}
-            className="w-full p-2 rounded text-black outline-1"
+            className="w-full p-2 border rounded"
             placeholder="Subject (max 50 chars)"
           />
-          <div className="text-sm text-gray-400 text-right">
+          <div className="text-sm text-gray-500 text-right">
             {formData.subject.length}/50
           </div>
         </div>
 
         {/* Message */}
         <div className="mt-4">
-          <label className="block mb-1 text-black font-semibold" htmlFor="message">
-            Your message
+          <label htmlFor="message" className="block mb-1 font-semibold">
+            Your Message
           </label>
           <textarea
             id="message"
@@ -147,10 +147,10 @@ export default function Contact() {
             required
             value={formData.message}
             onChange={handleChange}
-            className="w-full p-2 rounded text-black outline-1"
-            placeholder="Leave a comment..."
+            className="w-full p-2 border rounded"
+            placeholder="Leave a comment... (max 500 chars)"
           />
-          <div className="text-sm text-gray-400 text-right">
+          <div className="text-sm text-gray-500 text-right">
             {formData.message.length}/500
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function Contact() {
           type="submit"
           className="mt-4 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
         >
-          Send message
+          Send Message
         </button>
       </form>
     </div>
