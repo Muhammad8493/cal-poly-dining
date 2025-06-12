@@ -27,7 +27,6 @@ export default function App() {
   const [userEmail,  setUserEmail]  = useState('');
   const [userRole,   setUserRole]   = useState('');
 
-  // After login state flips on, pull the user's role from Firestore
   useEffect(() => {
     if (!isLoggedIn) {
       setUserRole('');
@@ -50,7 +49,6 @@ export default function App() {
 
   const isAdmin = userRole === 'admin';
 
-  // Centralized helper to add a review under DiningSpots/{spot}/MenuItems/{dish}/Reviews
   function addReview(spotId, dishId, newReview) {
     return addDoc(
       collection(db, 'DiningSpots', spotId, 'MenuItems', dishId, 'Reviews'),
@@ -127,7 +125,6 @@ export default function App() {
               }
             />
 
-            {/* Admin panel only if we actually fetched back “admin” */}
             <Route
               path="/admin"
               element={
