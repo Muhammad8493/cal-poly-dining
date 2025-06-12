@@ -1,7 +1,6 @@
 // src/components/PollCard.jsx
 import React from 'react';
 
-// Helper to compute total votes from poll.options.
 function getTotalVotes(options) {
   return options.reduce((sum, opt) => sum + Number(opt.votes), 0);
 }
@@ -10,7 +9,6 @@ export default function PollCard({ poll, onOptionChange, onVote, currentUserEmai
   const totalVotes = getTotalVotes(poll.options);
   const userVoted = poll.userVoted;
 
-  // Calculate percentage for a given vote count.
   function getPercentage(voteCount) {
     return totalVotes === 0 ? 0 : Math.round((voteCount / totalVotes) * 100);
   }
@@ -28,7 +26,6 @@ export default function PollCard({ poll, onOptionChange, onVote, currentUserEmai
         </div>
       </div>
 
-      {/* If user hasn't voted yet, show radio buttons. Otherwise, show results */}
       {!userVoted ? (
         <div className="flex flex-col gap-2">
           {poll.options.map((option, idx) => (
@@ -58,7 +55,6 @@ export default function PollCard({ poll, onOptionChange, onVote, currentUserEmai
           {poll.options.map((option, idx) => {
             const voteCount = Number(option.votes);
             const pct = getPercentage(voteCount);
-            // Check if this option index is the one the user selected.
             const isUserChoice = poll.users && poll.users[currentUserEmail] === idx;
             return (
               <div key={idx}>
@@ -70,7 +66,6 @@ export default function PollCard({ poll, onOptionChange, onVote, currentUserEmai
                   <span className="text-gray-800">{option.text}</span>
                   <span className="text-gray-800">{pct}%</span>
                 </div>
-                {/* Progress bar */}
                 <div className="w-full bg-gray-300 h-2 rounded-b mb-2">
                   <div
                     className="bg-gray-400 h-2 rounded-b"
