@@ -31,15 +31,12 @@ export default function ReviewModal({
       dislikedBy:[]
     };
 
-    // addReview is expected to return a promise that resolves with the DocumentReference.
     addReview(restaurantName, dishName, newReview)
       .then((docRef) => {
-        // Set the review object's id from Firestore.
         newReview.id = docRef.id;
         if (onReviewAdded) {
           onReviewAdded(newReview);
         }
-        // Clear form and close modal.
         setTitle('');
         setBody('');
         setRating(5);
@@ -58,12 +55,10 @@ export default function ReviewModal({
     }
   };
 
-  // Clicking on the overlay closes the modal.
   const handleOverlayClick = () => {
     onClose();
   };
 
-  // Render clickable star rating (1-5)
   const renderClickableStars = () => {
     return (
       <div className="flex items-center gap-2">
