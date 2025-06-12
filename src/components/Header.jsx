@@ -11,16 +11,13 @@ export default function Header({ isLoggedIn, onSignOut, isAdmin }) {
 
   return (
     <header className="bg-[#333333] text-[#ffffff] flex items-center justify-between px-4 py-2 whitespace-nowrap overflow-hidden">
-      {/* Left Section: Home */}
       <div className="flex items-center gap-1">
         <Link to="/" className="text-3xl text-[#ffffff]">
           &#8962;
         </Link>
-        {/* Hide the site name on very small screens */}
         <h1 className="hidden sm:block text-lg font-bold">Cal Poly Dining Reviews</h1>
       </div>
 
-      {/* Center Section: Navigation Links */}
       <nav className="flex gap-2 sm:gap-4 text-sm sm:text-base">
         <Link
           to="/polls"
@@ -52,7 +49,6 @@ export default function Header({ isLoggedIn, onSignOut, isAdmin }) {
         )}
       </nav>
 
-      {/* Right Section: Sign In/Out Button */}
       {isLoggedIn ? (
         <button
           onClick={onSignOut}
