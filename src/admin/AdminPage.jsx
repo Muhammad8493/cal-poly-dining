@@ -10,7 +10,6 @@ import {
   doc
 } from 'firebase/firestore';
 
-// Import modal components
 import EditRestaurantModal from './EditRestaurantModal';
 import ManageDishesModal from './ManageDishesModal';
 import PollEditModal from './PollEditModal';
@@ -21,17 +20,15 @@ import SuggestionTab from './SuggestionTab';
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('restaurants');
 
-  /*** RESTAURANT STATE ***/
+
   const [newRestaurant, setNewRestaurant] = useState({
     name: '',
     location: 'Vista Grande',
     image: ''
   });
   const [restaurants, setRestaurants] = useState([]);
-  // When editing a restaurant:
   const [restaurantToEdit, setRestaurantToEdit] = useState(null);
 
-  // For Create New Dish section:
   const [selectedRestaurantForDishes, setSelectedRestaurantForDishes] = useState('');
   const [newDish, setNewDish] = useState({
     name: '',
@@ -42,12 +39,9 @@ export default function AdminPage() {
     availability: true,
     dateIntroduced: ''
   });
-  // For the Manage Dishes modal, store dishes for the selected restaurant.
   const [dishesForRestaurant, setDishesForRestaurant] = useState([]);
-  // Missing state: control when the Manage Dishes modal is visible.
   const [showManageDishesModal, setShowManageDishesModal] = useState(false);
 
-  /*** POLL STATE ***/
   const [newPoll, setNewPoll] = useState({
     question: '',
     timeLeft: '',
@@ -55,11 +49,9 @@ export default function AdminPage() {
     options: ''
   });
   const [polls, setPolls] = useState([]);
-  // Control Poll edit modal:
   const [pollEditModal, setPollEditModal] = useState({ isOpen: false, poll: null });
 
-  /*** REVIEWS STATE ***/
-  // The ReviewTab component will manage its own state
+
 
   // --- FETCH FUNCTIONS ---
   const fetchRestaurants = async () => {
@@ -140,7 +132,6 @@ export default function AdminPage() {
   };
 
   const handleDeleteRestaurant = async (id) => {
-    // Deletion will only be via modal now.
     try {
       await deleteDoc(doc(db, 'DiningSpots', id));
       alert('Restaurant deleted successfully!');
@@ -219,7 +210,6 @@ export default function AdminPage() {
       const optionsArray = editedPoll.options
         .split('\n')
         .filter(opt => opt.trim() !== '');
-      // Rebuild the poll's options array:
       const options = optionsArray.map(opt => ({ text: opt, votes: "0" }));
       
       const pollRef = doc(db, 'Polls', editedPoll.id);
@@ -231,9 +221,8 @@ export default function AdminPage() {
       });
       
       alert('Poll updated successfully!');
-      // Close the modal or update local polls state as needed:
+
       setPollEditModal({ isOpen: false, poll: null });
-      // Optionally re-fetch the polls list:
       fetchPolls();
     } catch (error) {
       console.error('Error updating poll:', error);
