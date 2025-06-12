@@ -4,7 +4,6 @@ import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export default function PollEditModal({ poll, onClose, onUpdate, onDelete }) {
-  // Local state for editing the poll
   const [editedPoll, setEditedPoll] = useState({
     question: '',
     timeLeft: '',
@@ -12,7 +11,6 @@ export default function PollEditModal({ poll, onClose, onUpdate, onDelete }) {
     options: ''
   });
 
-  // When the poll prop changes, initialize local state with its data.
   useEffect(() => {
     if (poll) {
       setEditedPoll({
@@ -26,15 +24,14 @@ export default function PollEditModal({ poll, onClose, onUpdate, onDelete }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Build an "editedPoll" object with *all* fields needed
     const edited = {
-      id: poll.id,  // important so we know which doc to update
+      id: poll.id, 
       question: editedPoll.question,
       timeLeft: editedPoll.timeLeft,
       isLive: editedPoll.isLive,
-      options: editedPoll.options,   // still the newline string
+      options: editedPoll.options, 
     };
-    onUpdate(edited);               // pass it up to AdminPage
+    onUpdate(edited);          
     onClose();
   };
 
