@@ -9,7 +9,6 @@ export default function Hero() {
         backgroundImage: "url('https://calpolypartners.org/wp-content/uploads/2020/10/Vista-Grande_6491-web-1080x675.jpg')",
       }}
     >
-      {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/40"></div>
 
       <div className="relative z-10 px-4">
