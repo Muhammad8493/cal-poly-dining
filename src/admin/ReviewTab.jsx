@@ -19,7 +19,7 @@ export default function ReviewTab() {
   const [isLoading, setIsLoading] = useState(false);
   const [showReported, setShowReported] = useState(false);
 
-  // Load all restaurants once
+  // Load all restaurants
   useEffect(() => {
     (async () => {
       const snap = await getDocs(collection(db, 'DiningSpots'));
@@ -27,7 +27,6 @@ export default function ReviewTab() {
     })();
   }, []);
 
-  // Load dishes when restaurant changes (only in normal mode)
   useEffect(() => {
     if (!showReported && selectedRestaurant) {
       (async () => {
@@ -39,7 +38,6 @@ export default function ReviewTab() {
     }
   }, [selectedRestaurant, showReported]);
 
-  // Fetch reviews under a dish or all dishes
   const fetchReviews = async (restId, dishId) => {
     setIsLoading(true);
     let all = [];
@@ -70,7 +68,7 @@ export default function ReviewTab() {
     }
   };
 
-  // Fetch only unresolved report documents
+
   const fetchReports = async () => {
     setIsLoading(true);
     try {
@@ -86,7 +84,7 @@ export default function ReviewTab() {
     }
   };
 
-  // Toggle between normal reviews & reported view
+
   const handleToggleReported = () => {
     const next = !showReported;
     setShowReported(next);
@@ -96,7 +94,6 @@ export default function ReviewTab() {
     if (next) fetchReports();
   };
 
-  // If filters change while in reported view, switch back to normal
   const handleRestaurantChange = e => {
     if (showReported) setShowReported(false);
     setSelectedRestaurant(e.target.value);
@@ -108,7 +105,6 @@ export default function ReviewTab() {
     setSelectedDish(e.target.value);
   };
 
-  // Flag/unflag a review
   const toggleFlag = async (reviewId, currentFlag, dishId) => {
     if (!selectedRestaurant) {
       return alert('Please select a restaurant first.');
@@ -129,7 +125,6 @@ export default function ReviewTab() {
     );
   };
 
-  // Delete a review
   const handleDeleteReview = async (reviewId, dishId) => {
     if (!selectedRestaurant || !dishId) {
       return alert('Please select a restaurant and a dish.');
